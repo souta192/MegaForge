@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: GitHub Pages (Next.js Export)
 
 on:
   push:
@@ -20,33 +20,39 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
+          cache: 'npm'
+
       - name: Install
         run: npm ci || npm install
-      - name: Build (Next export)
-        env:
-          GH_PAGES_REPO: ${{ vars.GH_PAGES_REPO }}
+
+      - name: Build & Export (Next.js)
         run: |
-          echo "GH_PAGES_REPO=${{ env.GH_PAGES_REPO }}"
           npm run build
-          npx next export
-          node scripts/postexport_fix_404.cjs
+          npx next export --out out
+
+      # 404.html があると SPA でも直リンク404を回避できる
+      - name: Ensure 404.html exists
+        run: |
+          if [ ! -f out/404.html ]; then
+            echo "<!doctype html><meta http-equiv=refresh content='0; url=/' />" > out/404.html
+          fi
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./out
+          path: out
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
