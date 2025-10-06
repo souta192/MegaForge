@@ -1,0 +1,19 @@
+{
+  "name": "megaforge-pages",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "export": "next export",
+    "deploy:gh": "gh-pages -d out -b gh-pages"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.1.1",
+    "typescript": "^5.6.2"
+  }
+}
